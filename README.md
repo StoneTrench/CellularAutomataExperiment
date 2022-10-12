@@ -2,6 +2,10 @@
 I was playing around with masks grids of neighbors and cells.
 To run it just open the html file in/using a web browser.
 
+
+!!!SEIZURE WARNING!!!
+
+
 ![example1.gif](https://github.com/StoneTrench/CellularAutomataExperiment/blob/main/example1.gif)
 ![example2.gif](https://github.com/StoneTrench/CellularAutomataExperiment/blob/main/example2.gif)
 
