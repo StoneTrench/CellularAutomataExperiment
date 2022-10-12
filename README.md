@@ -1,5 +1,6 @@
 # CellularAutomataExperiment
 I was playing around with masks grids of neighbors and cells.
+To run it just open the html file in/using a web browser.
 
 ## Here are some interesting mask arrays i've found
 Just replace the `CreateRandomMask()` text with one of the arrays below.
