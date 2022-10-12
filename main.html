@@ -2,6 +2,8 @@
     <canvas id="canvas">
     </canvas>
 
+
+
     <script>
         //#region Settings
 
@@ -41,7 +43,7 @@
         }
         function GetCell(x, y) {
             //return cells[x] == null || cells[x][y] == null ? 0 : cells[x][y];
-            
+
             // This part makes sure we loop around the borders of the canvas
             if (x < 0) x += size;
             if (y < 0) y += size;
@@ -98,12 +100,27 @@
             if (cells[x][y] == null) cells[x].push([Math.random(), Math.random(), Math.random()])
         })
 
+        // USED TO COUNT THE DOWNLOADED IMAGES USE WITH CARE
+        var frames = 0
+
         function update() {
             //Draw
             LoopOverAllCells((x, y) => {
                 if (x % onlyPixels == 0 && y % onlyPixels == 0)
                     setPixel(x / onlyPixels, y / onlyPixels, rgbToHex(cells[x][y][0] * 255, cells[x][y][1] * 255, cells[x][y][2] * 255))
             })
+
+            // WARNING THIS PIECE OF CODE DOWNLOADS THE IMAGES, i used it to make the example gifs!
+            // ONLY TURN IT ON IF YOU KNOW WHAT YOURE DOING
+            if (false && frames < 60) {
+                frames++;
+                const a = document.createElement("a");
+                a.href = canvas.toDataURL('image/png')
+                a.download = frames + "-frame.png";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
 
             // Create buffer and clone cells to it.
             let buffer = cells.map(a => [...a])
