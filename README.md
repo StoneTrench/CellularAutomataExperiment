@@ -2,8 +2,8 @@
 I was playing around with masks grids of neighbors and cells.
 To run it just open the html file in/using a web browser.
 
-![example1.gif](https://github.com/StoneTrench/CellularAutomataExperiment/example1.gif)
-![example2.gif](https://github.com/StoneTrench/CellularAutomataExperiment/example2.gif)
+![example1.gif](https://github.com/StoneTrench/CellularAutomataExperiment/blob/main/example1.gif)
+![example2.gif](https://github.com/StoneTrench/CellularAutomataExperiment/blob/main/example2.gif)
 
 ## Here are some interesting mask arrays i've found
 Just replace the `CreateRandomMask()` text with one of the arrays below.
