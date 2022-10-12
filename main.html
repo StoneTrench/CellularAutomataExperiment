@@ -1,0 +1,139 @@
+<body>
+    <canvas id="canvas">
+    </canvas>
+
+    <script>
+        //#region Settings
+
+        const size = 128; // Size of canvas
+        const scale = 4; // Size of a pixel
+        const maskSize = 2; // Size of the mask (maskSize * 2 + 1) x (maskSize * 2 + 1)
+        const onlyPixels = 1; // Only take pixels at this interval. No clue why i added it
+
+        //#endregion
+
+        //#region Init
+        var canvas = document.getElementById("canvas")
+        canvas.width = size * scale / onlyPixels;
+        canvas.height = size * scale / onlyPixels;
+        canvas.style.backgroundColor = "#000000";
+        const context = canvas.getContext("2d")
+        //#endregion
+
+        //#region Utility
+        function componentToHex(c) {
+            var hex = (Math.floor(c)).toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+        function Clamp(v, min, max) {
+            return Math.max(Math.min(v, max), min);
+        }
+
+        function LoopOverAllCells(action) {
+            for (let x = 0; x < size; x++) {
+                for (let y = 0; y < size; y++) {
+                    action(x, y);
+                }
+            }
+        }
+        function GetCell(x, y) {
+            //return cells[x] == null || cells[x][y] == null ? 0 : cells[x][y];
+            
+            // This part makes sure we loop around the borders of the canvas
+            if (x < 0) x += size;
+            if (y < 0) y += size;
+
+            if (x > size - 1) x -= size;
+            if (y > size - 1) y -= size;
+
+            return cells[x][y]
+        }
+        function GetNeighbours(cx, cy, w = 1, h = 1) {
+            const result = []
+
+            for (let x = -w; x <= w; x++) {
+                for (let y = -h; y <= h; y++) {
+                    result.push(GetCell(cx + x, cy + y));
+                }
+            }
+
+            return result;
+        }
+        //#endregion
+
+        function setPixel(x, y, color) {
+            if (!color.startsWith("#")) color = "#" + color;
+            context.fillStyle = color;
+            context.fillRect(x * scale, y * scale, scale, scale);
+        }
+
+        //#region Mask
+        const mask = CreateRandomMask();
+        function CreateRandomMask() {
+            const maskFullSize = (maskSize + 1 + maskSize);
+            var Mask = new Array(maskFullSize * maskFullSize)
+            for (let i = 0; i < maskFullSize * maskFullSize; i++) {
+                Mask[i] = Math.random() * 2 - 1
+            }
+
+            let maskSum = Mask.reduce((a, b) => a + b);
+
+            // This is here cause values that sum to a value above one didn't seem to generate interesting patterns. But i turned it off later.
+            if (false && maskSum > 1) {
+                Mask = Mask.map(e => e / maskSum)
+            }
+            console.log(Mask)
+            return Mask;
+        }
+        //#endregion
+
+        let cells = []
+
+        // Generate random cells
+        LoopOverAllCells((x, y) => {
+            if (cells[x] == null) cells.push([])
+            if (cells[x][y] == null) cells[x].push([Math.random(), Math.random(), Math.random()])
+        })
+
+        function update() {
+            //Draw
+            LoopOverAllCells((x, y) => {
+                if (x % onlyPixels == 0 && y % onlyPixels == 0)
+                    setPixel(x / onlyPixels, y / onlyPixels, rgbToHex(cells[x][y][0] * 255, cells[x][y][1] * 255, cells[x][y][2] * 255))
+            })
+
+            // Create buffer and clone cells to it.
+            let buffer = cells.map(a => [...a])
+
+            LoopOverAllCells((x, y) => {
+                const neigh = GetNeighbours(x, y, maskSize, maskSize);
+                const valueA = Clamp(neigh.map((e, i) => e[0] * mask[i]).reduce((a, b) => a + b), 0, 1);
+                const valueB = Clamp(neigh.map((e, i) => e[1] * mask[i]).reduce((a, b) => a + b), 0, 1);
+                const valueC = Clamp(neigh.map((e, i) => e[2] * mask[i]).reduce((a, b) => a + b), 0, 1);
+
+                buffer[x][y][0] = activation(valueA)
+                buffer[x][y][1] = activation(valueB)
+                buffer[x][y][2] = activation(valueC)
+                //value + Clamp(Math.random() * 2 - 1, -0.01, 0.01);
+                // const count = neigh.filter(e => e == true).length
+
+                // if (cells[x][y] && (count == 2 || count == 3))
+                //     buffer[x][y] = true;
+                // else if (!cells[x][y] && count == 3)
+                //     buffer[x][y] = true;
+                // else
+                //     buffer[x][y] = false;
+            })
+            cells = buffer;
+        }
+
+        function activation(v) {
+            return v > 0.5 ? v : 0;
+        }
+
+        setInterval(update, 100)
+    </script>
+</body>
